@@ -9,7 +9,6 @@ const fs = require('fs');
  * @param {!express:Response} res HTTP response context.
  */
 exports.helloWorld = (req, res) => {
-  console.log(req);
   const src = `https://files.ontario.ca/moh-covid-19-report-en-${req.query.date}.pdf`;
   const output = '/tmp/report.pdf';
 
@@ -29,14 +28,18 @@ exports.helloWorld = (req, res) => {
     async function getNewCases(pageNumber, healthUnit, offset) {
       let page = await pdf.getPage(pageNumber);
       let content = await page.getTextContent();
-      let idx = content.items.findIndex(e => e.str === healthUnit);
-      return content.items[idx + offset].str;
+      let idx = content.items.findIndex(e => e.str.endsWith(healthUnit));
+      let idx2 = content.items.slice(idx).findIndex(e => e.transform[4] > offset) - 1;
+
+      if (content.items[idx + idx2 - 1].str === '-') {
+        return '-' + content.items[idx + idx2].str;
+      }
+
+      return content.items[idx + idx2].str;
     }
 
-    let torontoNewCases = await getNewCases(10, 'Toronto Public Health', 4);
-    let ontarioNewCases = await getNewCases(11, 'TOTAL ONTARIO', 4);
-    console.log(torontoNewCases);
-    console.log(ontarioNewCases);
+    let torontoNewCases = await getNewCases(10, 'Toronto Public Health', 353);
+    let ontarioNewCases = await getNewCases(11, 'ONTARIO', 350);
     res.status(200).send({
       "torontoNewCases": torontoNewCases,
       "ontarioNewCases": ontarioNewCases
