@@ -1,5 +1,6 @@
 const pdfjs = require('pdfjs-dist/es5/build/pdf.js');
 const wget = require('wget-improved');
+const isnumeric = require('isnumeric');
 const fs = require('fs');
 
 /**
@@ -25,19 +26,24 @@ exports.helloWorld = (req, res) => {
     pdfjs.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/build/pdf.worker.js'
     let pdf = await pdfjs.getDocument({data: contents}).promise.then();
 
-    async function getNewCases(healthUnit, offset) {
+    async function getNewCases(healthUnit) {
       for (let i = 1; i <= pdf.numPages; i++) {
         let page = await pdf.getPage(i);
         let content = await page.getTextContent();
-        console.log(content.items);
         let idx = content.items.findIndex(e => e.str.includes(healthUnit));
         if (idx < 0) { continue; }
 
-        let idx2 = content.items.slice(idx).findIndex(e => e.transform[4] > offset) - 1;
-        if (content.items[idx + idx2 - 1].str === '-') {
-          return '-' + content.items[idx + idx2].str;
+        let idx2 = idx;
+        let numInts = 0;
+        do {
+          idx2++;
+          if (isnumeric(content.items[idx2].str)) { numInts++; }
+        } while (numInts < 2);
+
+        if (content.items[idx2 - 1].str === '-') {
+          return '-' + content.items[idx2].str;
         }
-        return content.items[idx + idx2].str;
+        return content.items[idx2].str;
 
       }
 
@@ -45,8 +51,8 @@ exports.helloWorld = (req, res) => {
       res.status(400).send(err);
     }
 
-    let torontoNewCases = await getNewCases('TORONTO', 353);
-    let ontarioNewCases = await getNewCases('ONTARIO', 353);
+    let torontoNewCases = await getNewCases('TORONTO');
+    let ontarioNewCases = await getNewCases('ONTARIO');
     res.status(200).send({
       "torontoNewCases": torontoNewCases,
       "ontarioNewCases": ontarioNewCases

@@ -4,7 +4,8 @@
   "dependencies": {
     "@google-cloud/functions-framework": "^1.6.0",
     "pdfjs-dist": "^2.4.456",
-    "wget-improved": "^3.2.0"
+    "wget-improved": "^3.2.0",
+    "isnumeric": "^0.3.3"
   },
   "scripts": {
     "start": "functions-framework --target=helloWorld --port=3001"
