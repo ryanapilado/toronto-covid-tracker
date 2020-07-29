@@ -1,7 +1,7 @@
 # Toronto COVID-19 New Cases
 
 Simple Google Cloud Function which retrieves the daily new cases of COVID-19 in Toronto
-and in Ontario, as reported in the province's daily epidemilogical update.
+and in Ontario, as reported in the province's daily epidemiological update.
 
 ### Usage
 
