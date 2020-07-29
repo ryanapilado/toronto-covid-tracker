@@ -13,17 +13,17 @@ exports.readReport = (req, res) => {
   const src = `https://files.ontario.ca/moh-covid-19-report-en-${req.query.date}.pdf`;
   const outputTarget = '/tmp/report.pdf';
 
-  let download = wget.download(src, outputTarget);
+  const download = wget.download(src, outputTarget);
   download.on('error', function(err) {
-    console.log(err);
+    console.error(err);
     res.status(400).send(err);
   });
 
   download.on('end', async function(outputMessage) {
 
-    let pdf = await getDocument(outputTarget);
-    let torontoNewCases = await getNewCases(pdf, 'TORONTO');
-    let ontarioNewCases = await getNewCases(pdf, 'ONTARIO');
+    const pdf = await getDocument(outputTarget);
+    const torontoNewCases = await getNewCases(pdf, 'TORONTO');
+    const ontarioNewCases = await getNewCases(pdf, 'ONTARIO');
     res.status(200).send({
       "torontoNewCases": torontoNewCases,
       "ontarioNewCases": ontarioNewCases
@@ -31,6 +31,7 @@ exports.readReport = (req, res) => {
 
   }, function (reason) {
     console.error(reason);
+    res.status(500).send(reason);
   });
 };
 
@@ -43,8 +44,8 @@ async function getDocument(output) {
 
 async function getNewCases(pdf, healthUnit) {
   for (let i = 1; i <= pdf.numPages; i++) {
-    let page = await pdf.getPage(i);
-    let content = await page.getTextContent();
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
     let idx = content.items.findIndex(e => e.str.includes(healthUnit));
     if (idx < 0) { continue; }
 
