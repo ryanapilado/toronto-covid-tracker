@@ -25,8 +25,8 @@ exports.readReport = (req, res) => {
     const torontoNewCases = await getNewCases(pdf, 'TORONTO');
     const ontarioNewCases = await getNewCases(pdf, 'ONTARIO');
     res.status(200).send({
-      "torontoNewCases": torontoNewCases,
-      "ontarioNewCases": ontarioNewCases
+      "torontoNewCases": parseInt(torontoNewCases),
+      "ontarioNewCases": parseInt(ontarioNewCases)
     });
 
   }, function (reason) {

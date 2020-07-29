@@ -11,8 +11,8 @@ Sample query string:
 Sample response:
 ```
 {
-    torontoNewCases: 6,
-    ontarioNewCases: 76
+    "torontoNewCases": 6,
+    "ontarioNewCases": 76
 }
 ```
 
