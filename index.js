@@ -9,58 +9,61 @@ const fs = require('fs');
  * @param {!express:Request} req HTTP request context.
  * @param {!express:Response} res HTTP response context.
  */
-exports.helloWorld = (req, res) => {
+exports.readReport = (req, res) => {
   const src = `https://files.ontario.ca/moh-covid-19-report-en-${req.query.date}.pdf`;
-  const output = '/tmp/report.pdf';
+  const outputTarget = '/tmp/report.pdf';
 
-  let download = wget.download(src, output);
+  let download = wget.download(src, outputTarget);
   download.on('error', function(err) {
     console.log(err);
     res.status(400).send(err);
   });
 
-  download.on('end', async function(output) {
+  download.on('end', async function(outputMessage) {
 
-    const contents = fs.readFileSync('/tmp/report.pdf', {encoding: 'binary'});
-
-    pdfjs.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/build/pdf.worker.js'
-    let pdf = await pdfjs.getDocument({data: contents}).promise.then();
-
-    async function getNewCases(healthUnit) {
-      for (let i = 1; i <= pdf.numPages; i++) {
-        let page = await pdf.getPage(i);
-        let content = await page.getTextContent();
-        let idx = content.items.findIndex(e => e.str.includes(healthUnit));
-        if (idx < 0) { continue; }
-
-        let idx2 = idx;
-        let numInts = 0;
-        do {
-          idx2++;
-          if (isnumeric(content.items[idx2].str)) { numInts++; }
-        } while (numInts < 2);
-
-        if (content.items[idx2 - 1].str === '-') {
-          return '-' + content.items[idx2].str;
-        }
-        return content.items[idx2].str;
-
-      }
-
-      console.log('could not locate page');
-      res.status(400).send(err);
-    }
-
-    let torontoNewCases = await getNewCases('TORONTO');
-    let ontarioNewCases = await getNewCases('ONTARIO');
+    let pdf = await getDocument(outputTarget);
+    let torontoNewCases = await getNewCases(pdf, 'TORONTO');
+    let ontarioNewCases = await getNewCases(pdf, 'ONTARIO');
     res.status(200).send({
       "torontoNewCases": torontoNewCases,
       "ontarioNewCases": ontarioNewCases
     });
 
-    }, function (reason) {
-      console.error(reason);
-    }
-  );
+  }, function (reason) {
+    console.error(reason);
+  });
 };
+
+async function getDocument(output) {
+  const contents = fs.readFileSync(output, {encoding: 'binary'});
+  pdfjs.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/build/pdf.worker.js'
+  let pdf = await pdfjs.getDocument({data: contents}).promise.then();
+  return pdf;
+}
+
+async function getNewCases(pdf, healthUnit) {
+  for (let i = 1; i <= pdf.numPages; i++) {
+    let page = await pdf.getPage(i);
+    let content = await page.getTextContent();
+    let idx = content.items.findIndex(e => e.str.includes(healthUnit));
+    if (idx < 0) { continue; }
+
+    let idx2 = idx;
+    let numInts = 0;
+    do {
+      idx2++;
+      if (isnumeric(content.items[idx2].str)) { numInts++; }
+    } while (numInts < 2);
+
+    if (content.items[idx2 - 1].str === '-') {
+      return '-' + content.items[idx2].str;
+    }
+    return content.items[idx2].str;
+
+  }
+
+  console.log(`Could not locate page containing ${healthUnit} data.`);
+  res.status(400).send(err);
+}
+
 
