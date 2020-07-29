@@ -25,21 +25,28 @@ exports.helloWorld = (req, res) => {
     pdfjs.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/build/pdf.worker.js'
     let pdf = await pdfjs.getDocument({data: contents}).promise.then();
 
-    async function getNewCases(pageNumber, healthUnit, offset) {
-      let page = await pdf.getPage(pageNumber);
-      let content = await page.getTextContent();
-      let idx = content.items.findIndex(e => e.str.endsWith(healthUnit));
-      let idx2 = content.items.slice(idx).findIndex(e => e.transform[4] > offset) - 1;
+    async function getNewCases(healthUnit, offset) {
+      for (let i = 1; i <= pdf.numPages; i++) {
+        let page = await pdf.getPage(i);
+        let content = await page.getTextContent();
+        console.log(content.items);
+        let idx = content.items.findIndex(e => e.str.includes(healthUnit));
+        if (idx < 0) { continue; }
 
-      if (content.items[idx + idx2 - 1].str === '-') {
-        return '-' + content.items[idx + idx2].str;
+        let idx2 = content.items.slice(idx).findIndex(e => e.transform[4] > offset) - 1;
+        if (content.items[idx + idx2 - 1].str === '-') {
+          return '-' + content.items[idx + idx2].str;
+        }
+        return content.items[idx + idx2].str;
+
       }
 
-      return content.items[idx + idx2].str;
+      console.log('could not locate page');
+      res.status(400).send(err);
     }
 
-    let torontoNewCases = await getNewCases(10, 'Toronto Public Health', 353);
-    let ontarioNewCases = await getNewCases(11, 'ONTARIO', 350);
+    let torontoNewCases = await getNewCases('TORONTO', 353);
+    let ontarioNewCases = await getNewCases('ONTARIO', 353);
     res.status(200).send({
       "torontoNewCases": torontoNewCases,
       "ontarioNewCases": ontarioNewCases
