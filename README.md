@@ -6,7 +6,7 @@ and in Ontario, as reported in the province's daily epidemiological update.
 ### Usage
 
 Sample query string:
-`?&date=YYYY-MM-DD`
+`?date=YYYY-MM-DD`
 
 Sample response:
 ```
