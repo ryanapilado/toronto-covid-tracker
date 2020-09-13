@@ -3,12 +3,7 @@ const wget = require('wget-improved');
 const isnumeric = require('isnumeric');
 const fs = require('fs');
 
-/**
- * Responds to any HTTP request.
- *
- * @param {!express:Request} req HTTP request context.
- * @param {!express:Response} res HTTP response context.
- */
+
 async function scrapeValues(date) {
   return new Promise((resolve, reject) => {
 
@@ -38,6 +33,7 @@ async function scrapeValues(date) {
   });
 };
 
+
 async function getDocument(output) {
   const contents = fs.readFileSync(output, {encoding: 'binary'});
   pdfjs.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/build/pdf.worker.js'
@@ -45,11 +41,21 @@ async function getDocument(output) {
   return pdf;
 }
 
+
 async function getNewCases(pdf, healthUnit) {
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    const page = await pdf.getPage(pageNum);
     const content = await page.getTextContent();
-    let idx = content.items.findIndex(e => e.str.includes(healthUnit));
+    const window_size = 4;
+    const windows = content.items.map((item, i) => {
+        let window = item.str;
+        for (j = 0; j < window_size && i + j < content.items.length; j++) {
+            window += content.items[i + j].str;
+        }
+        return window;
+    });
+
+    let idx = windows.findIndex(window => window.includes(healthUnit));
     if (idx < 0) { continue; }
 
     let idx2 = idx;
