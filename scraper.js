@@ -18,8 +18,8 @@ async function scrapeValues(date) {
       download.on('end', async function(outputMessage) {
 
         const pdf = await getDocument(outputTarget);
-        const torontoNewCases = await getNewCases(pdf, 'TORONTO');
-        const ontarioNewCases = await getNewCases(pdf, 'ONTARIO');
+        const torontoNewCases = await getNewCases(pdf, 'TOTAL TORONTO');
+        const ontarioNewCases = await getNewCases(pdf, 'TOTAL ONTARIO');
 
         resolve({
           "torontoNewCases": parseInt(torontoNewCases),
