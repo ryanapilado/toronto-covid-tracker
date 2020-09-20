@@ -3,11 +3,16 @@
   "version": "0.0.1",
   "dependencies": {
     "@google-cloud/functions-framework": "^1.6.0",
+    "isnumeric": "^0.3.3",
     "pdfjs-dist": "^2.4.456",
-    "wget-improved": "^3.2.0",
-    "isnumeric": "^0.3.3"
+    "wget-improved": "^3.2.1"
   },
   "scripts": {
-    "start": "functions-framework --target=readReport --port=3001"
+    "start": "functions-framework --target=readReport --port=3001",
+    "test": "jest --silent",
+    "test-verbose": "jest"
+  },
+  "devDependencies": {
+    "jest": "^26.4.2"
   }
 }
