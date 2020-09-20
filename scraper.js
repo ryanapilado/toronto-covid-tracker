@@ -57,6 +57,7 @@ async function getNewCases(pdf, healthUnit) {
 
     let idx = windows.findIndex(window => window.includes(healthUnit));
     if (idx < 0) { continue; }
+    idx += window_size;
 
     let idx2 = idx;
     let numInts = 0;
