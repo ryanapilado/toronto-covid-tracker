@@ -1,3 +1,4 @@
+const downloader = require("./downloader");
 const scraper = require("./scraper");
 
 /**
@@ -7,13 +8,14 @@ const scraper = require("./scraper");
  * @param {!express:Response} res HTTP response context.
  */
 exports.readReport = (req, res) => {
-    scraper.scrapeValues(req.query.date)
-        .then(values => {
-            console.log(values);
-            res.status(200).send(values);
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(400).send();
-        });
+  downloader.download(req.query.date)
+  .then(file => scraper.scrapeValues(file))
+  .then(values => {
+      console.log(values);
+      res.status(200).send(values);
+  })
+  .catch(err => {
+      console.log(err);
+      res.status(400).send();
+  });
 };
