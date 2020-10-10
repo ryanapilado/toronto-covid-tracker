@@ -7,8 +7,8 @@ const scraper = require("./scraper");
  * @param {!express:Request} req HTTP request context.
  * @param {!express:Response} res HTTP response context.
  */
-exports.readReport = (req, res) => {
-  downloader.download(req.query.date)
+exports.readReport = async (req, res) => {
+  return downloader.download(req.query.date)
   .then(file => scraper.scrapeValues(file))
   .then(values => {
       console.log(values);

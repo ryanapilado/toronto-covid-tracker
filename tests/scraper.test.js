@@ -1,13 +1,20 @@
-const scraper = require("../scraper.js")
+const { readReport } = require("..");
 const fs = require("fs")
+const { getMockReq, getMockRes } = require('@jest-mock/express');
 
 
-let caseData = JSON.parse(fs.readFileSync('tests/caseData.json'));
+const caseData = JSON.parse(fs.readFileSync('tests/caseData.json'));
 
 
-test.each(caseData)("%s", (date, torontoNewCases, ontarioNewCases) => {
-  return scraper.scrapeValues(date).then( scrapedData => {
-    expect(scrapedData).toHaveProperty('torontoNewCases', torontoNewCases);
-    expect(scrapedData).toHaveProperty('ontarioNewCases', ontarioNewCases);
-  })}
-)
+test.each(caseData)("%s", async (date, torontoNewCases, ontarioNewCases) => {
+  const req = getMockReq({ query: {date: date} });
+  const { res } = getMockRes();
+  await readReport(req, res);
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.send).toHaveBeenCalledWith(
+    expect.objectContaining({
+      'torontoNewCases': torontoNewCases,
+      'ontarioNewCases': ontarioNewCases
+    })
+  );
+})

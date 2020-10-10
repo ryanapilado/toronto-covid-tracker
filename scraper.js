@@ -2,7 +2,7 @@ const pdfjs = require('pdfjs-dist/es5/build/pdf.js');
 const isnumeric = require('isnumeric');
 
 
-async function scrapeValues(file) {
+function scrapeValues(file) {
   return new Promise(async (resolve, reject) => {
 
     const pdf = await getDocument(file);

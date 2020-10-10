@@ -13,6 +13,7 @@
     "test-verbose": "jest"
   },
   "devDependencies": {
-    "jest": "^26.4.2"
+    "jest": "^26.4.2",
+    "@jest-mock/express": "^1.1.8"
   }
 }

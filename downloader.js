@@ -13,13 +13,12 @@ async function download(date) {
       reject(err);
     });
 
-    downloader.on('end', async function(outputMessage) {
+    downloader.on('end', function(outputMessage) {
       const file = fs.readFileSync(outputTarget, {encoding: 'binary'});
       resolve(file);
     }, function (err) {
       reject(err);
     });
-
   });
 };
 
