@@ -12,20 +12,22 @@ exports.readReport = async (req, res) => {
 
   require('dotenv').config();
 
-  const db = new Firestore();
-  const newCasesRef = db.collection(process.env.COLLECTION);
-  const doc = await newCasesRef.doc(req.query.date).get();
-  if (doc.exists) {
-    console.log(doc.data());
-    res.status(200).send(doc.data());
-    return;
+  if (req.query.useCache) {
+    const db = new Firestore();
+    const newCasesRef = db.collection(process.env.COLLECTION);
+    const doc = await newCasesRef.doc(req.query.date).get();
+    if (doc.exists) {
+      console.log(doc.data());
+      res.status(200).send(doc.data());
+      return;
+    }
   }
 
   return downloader.download(req.query.date)
   .then(file => scraper.scrapeValues(file))
   .then(values => {
       console.log(values);
-      newCasesRef.doc(req.query.date).set(values);
+      if (req.query.useCache) newCasesRef.doc(req.query.date).set(values);
       res.status(200).send(values);
   })
   .catch(err => {
