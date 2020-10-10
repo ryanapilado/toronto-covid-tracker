@@ -31,3 +31,17 @@ test.each(caseData)("no cache: %s", async (date, torontoNewCases, ontarioNewCase
     })
   );
 })
+
+test("invalid date", async () => {
+  const req = getMockReq({ query: {date: "2010-10-10"} });
+  const { res } = getMockRes();
+  await readReport(req, res);
+  expect(res.status).toHaveBeenCalledWith(400);
+})
+
+test("no data", async () => {
+  const req = getMockReq({ query: {date: "2020-10-06"} });
+  const { res } = getMockRes();
+  await readReport(req, res);
+  expect(res.status).toHaveBeenCalledWith(400);
+})

@@ -57,7 +57,7 @@ async function getNewCases(pdf, healthUnit) {
   }
 
   console.log(`Could not locate page containing ${healthUnit} data.`);
-  res.status(400).send(err);
+  reject(err);
 }
 
 module.exports = {

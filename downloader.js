@@ -30,7 +30,7 @@ async function writeFileToStorage(path, date) {
     const storageFile = bucket.file(`${date}.pdf`);
     fs.createReadStream(path)
       .pipe(storageFile.createWriteStream())
-      .on('error', (err) => console.err(err))
+      .on('error', (err) => console.log(err))
       .on('finish', () => console.log('Storage upload complete'))
 }
 
