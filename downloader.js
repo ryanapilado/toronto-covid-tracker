@@ -26,7 +26,7 @@ function download(date) {
 
 async function writeFileToStorage(path, date) {
     const storage = new Storage();
-    const bucket = storage.bucket('toronto-covid-tracker-reports');
+    const bucket = storage.bucket(process.env.BUCKET);
     const storageFile = bucket.file(`${date}.pdf`);
     fs.createReadStream(path)
       .pipe(storageFile.createWriteStream())

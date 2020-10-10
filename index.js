@@ -10,8 +10,10 @@ const Firestore = require("@google-cloud/firestore");
  */
 exports.readReport = async (req, res) => {
 
+  require('dotenv').config();
+
   const db = new Firestore();
-  const newCasesRef = db.collection('newCases');
+  const newCasesRef = db.collection(process.env.COLLECTION);
   const doc = await newCasesRef.doc(req.query.date).get();
   if (doc.exists) {
     console.log(doc.data());
