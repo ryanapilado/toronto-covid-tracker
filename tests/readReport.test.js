@@ -20,7 +20,7 @@ test.each(caseData)("use cache: %s", async (date, torontoNewCases, ontarioNewCas
 })
 
 test.each(caseData)("no cache: %s", async (date, torontoNewCases, ontarioNewCases) => {
-  const req = getMockReq({ query: {date: date, useCache: true} });
+  const req = getMockReq({ query: {date: date, noCache: true} });
   const { res } = getMockRes();
   await readReport(req, res);
   expect(res.status).toHaveBeenCalledWith(200);
