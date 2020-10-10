@@ -8,6 +8,9 @@ const scraper = require("./scraper");
  * @param {!express:Response} res HTTP response context.
  */
 exports.readReport = async (req, res) => {
+
+  // check firestore; if found return that, else return below
+  
   return downloader.download(req.query.date)
   .then(file => scraper.scrapeValues(file))
   .then(values => {
