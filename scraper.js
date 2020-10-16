@@ -1,43 +1,26 @@
 const pdfjs = require('pdfjs-dist/es5/build/pdf.js');
-const wget = require('wget-improved');
 const isnumeric = require('isnumeric');
-const fs = require('fs');
 
 
-async function scrapeValues(date) {
-  return new Promise((resolve, reject) => {
+function scrapeValues(file) {
+  return new Promise(async (resolve, reject) => {
 
-      const src = `https://files.ontario.ca/moh-covid-19-report-en-${date}.pdf`;
-      const outputTarget = '/tmp/report.pdf';
+    const pdf = await getDocument(file);
+    const torontoNewCases = await getNewCases(pdf, 'TOTAL TORONTO');
+    const ontarioNewCases = await getNewCases(pdf, 'TOTAL ONTARIO');
 
-      const download = wget.download(src, outputTarget);
-      download.on('error', function(err) {
-        reject(err);
-      });
-
-      download.on('end', async function(outputMessage) {
-
-        const pdf = await getDocument(outputTarget);
-        const torontoNewCases = await getNewCases(pdf, 'TOTAL TORONTO');
-        const ontarioNewCases = await getNewCases(pdf, 'TOTAL ONTARIO');
-
-        resolve({
-          "torontoNewCases": parseInt(torontoNewCases),
-          "ontarioNewCases": parseInt(ontarioNewCases)
-        });
-
-      }, function (err) {
-        reject(err);
-      });
+    resolve({
+      "torontoNewCases": parseInt(torontoNewCases),
+      "ontarioNewCases": parseInt(ontarioNewCases)
+    });
 
   });
 };
 
 
-async function getDocument(output) {
-  const contents = fs.readFileSync(output, {encoding: 'binary'});
+function getDocument(file) {
   pdfjs.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/build/pdf.worker.js'
-  let pdf = await pdfjs.getDocument({data: contents}).promise.then();
+  let pdf = pdfjs.getDocument({data: file}).promise.then();
   return pdf;
 }
 
@@ -74,7 +57,7 @@ async function getNewCases(pdf, healthUnit) {
   }
 
   console.log(`Could not locate page containing ${healthUnit} data.`);
-  res.status(400).send(err);
+  reject(err);
 }
 
 module.exports = {
