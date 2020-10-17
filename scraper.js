@@ -5,9 +5,8 @@ const isnumeric = require('isnumeric');
 function scrapeValues(file) {
   return new Promise(async (resolve, reject) => {
 
-    const pdf = await getDocument(file);
-    const torontoNewCases = await getNewCases(pdf, 'TOTAL TORONTO');
-    const ontarioNewCases = await getNewCases(pdf, 'TOTAL ONTARIO');
+    const torontoNewCases = await getNewCases(file, 'TOTAL TORONTO');
+    const ontarioNewCases = await getNewCases(file, 'TOTAL ONTARIO');
 
     resolve({
       "torontoNewCases": parseInt(torontoNewCases),
@@ -18,14 +17,11 @@ function scrapeValues(file) {
 };
 
 
-function getDocument(file) {
+async function getNewCases(file, healthUnit) {
+
   pdfjs.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/build/pdf.worker.js'
-  let pdf = pdfjs.getDocument({data: file}).promise.then();
-  return pdf;
-}
+  let pdf = await pdfjs.getDocument({data: file}).promise;
 
-
-async function getNewCases(pdf, healthUnit) {
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
     const page = await pdf.getPage(pageNum);
     const content = await page.getTextContent();
@@ -57,7 +53,6 @@ async function getNewCases(pdf, healthUnit) {
   }
 
   console.log(`Could not locate page containing ${healthUnit} data.`);
-  reject(err);
 }
 
 module.exports = {
