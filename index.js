@@ -12,12 +12,12 @@ exports.readReport = async (req, res) => {
 
   require('dotenv').config();
 
-  let doc;
-  if (!req.query.noCache) {
+  let collection;
+  if (!req.query.noCache || req.query.flushCache) {
     const db = new Firestore();
-    const newCasesRef = db.collection(process.env.COLLECTION);
-    doc = await newCasesRef.doc(req.query.date).get();
-    if (doc.exists) {
+    collection = db.collection(process.env.COLLECTION);
+    const doc = await collection.doc(req.query.date).get();
+    if (doc.exists && !req.query.noCache) {
       console.log(doc.data());
       res.status(200).send(doc.data());
       return;
@@ -25,14 +25,16 @@ exports.readReport = async (req, res) => {
   }
 
   return downloader.download(req.query.date)
-  .then(file => scraper.scrapeValues(file))
-  .then(values => {
-      console.log(values);
-      if (!req.query.noCache) doc.set(values);
-      res.status(200).send(values);
-  })
-  .catch(err => {
-      console.log(err);
-      res.status(400).send();
-  });
+    .then(file => scraper.scrapeValues(file))
+    .then(values => {
+        console.log(values);
+        if (!req.query.noCache || req.query.flushCache) {
+          collection.doc(req.query.date).set(values);
+        }
+        res.status(200).send(values);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(400).send();
+    });
 };
