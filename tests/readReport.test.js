@@ -32,6 +32,19 @@ test.each(caseData)("no cache: %s", async (date, torontoNewCases, ontarioNewCase
   );
 })
 
+test.each(caseData)("flush cache: %s", async (date, torontoNewCases, ontarioNewCases) => {
+  const req = getMockReq({ query: {date: date, flushCache: true} });
+  const { res } = getMockRes();
+  await readReport(req, res);
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.send).toHaveBeenCalledWith(
+    expect.objectContaining({
+      'torontoNewCases': torontoNewCases,
+      'ontarioNewCases': ontarioNewCases
+    })
+  );
+})
+
 test("invalid date", async () => {
   const req = getMockReq({ query: {date: "2010-10-10"} });
   const { res } = getMockRes();
