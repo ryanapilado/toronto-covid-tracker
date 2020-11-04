@@ -38,17 +38,16 @@ async function getNewCases(file, healthUnit) {
     if (idx < 0) { continue; }
     idx += window_size;
 
-    let idx2 = idx;
-    let numInts = 0;
-    do {
-      idx2++;
-      if (isnumeric(content.items[idx2].str)) { numInts++; }
-    } while (numInts < 2);
+    const parseWindowSize = 20;
+    let parseWindow = content.items.slice(idx, idx + parseWindowSize).reduce(
+      (accumulator, item) => accumulator + item.str,
+      ""
+    );
+    let newCases = parseWindow.split(",").join("").split(" ")
+                    .filter(element => isnumeric(element))
+                    [1];
 
-    if (content.items[idx2 - 1].str === '-') {
-      return '-' + content.items[idx2].str;
-    }
-    return content.items[idx2].str;
+    return newCases;
 
   }
 
