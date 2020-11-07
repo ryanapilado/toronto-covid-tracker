@@ -43,7 +43,8 @@ async function getNewCases(file, healthUnit) {
       (accumulator, item) => accumulator + item.str,
       ""
     );
-    let newCases = parseWindow.split(",").join("").split(" ")
+    let newCases = parseWindow.split(" ")
+                    .map(element => element.replace(',', ''))
                     .filter(element => isnumeric(element))
                     [1];
 

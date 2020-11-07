@@ -13,7 +13,9 @@ exports.readReport = async (req, res) => {
   require('dotenv').config();
 
   let collection;
-  if (!req.query.noCache || req.query.flushCache) {
+  const noCache = 'noCache' in req.query;
+  const flushCache = 'flushCache' in req.query;
+  if (!noCache && !flushCache) {
     const db = new Firestore();
     collection = db.collection(process.env.COLLECTION);
     const doc = await collection.doc(req.query.date).get();
@@ -28,10 +30,10 @@ exports.readReport = async (req, res) => {
     .then(file => scraper.scrapeValues(file))
     .then(values => {
         console.log(values);
-        if (!req.query.noCache || req.query.flushCache) {
+        res.status(200).send(values);
+        if (!noCache || flushCache) {
           collection.doc(req.query.date).set(values);
         }
-        res.status(200).send(values);
     })
     .catch(err => {
         console.log(err);
