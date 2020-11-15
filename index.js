@@ -14,7 +14,7 @@ exports.readReport = async (req, res) => {
 
   let collection;
   const noCache = 'noCache' in req.query;
-  const flushCache = 'flushCache' in req.query;
+  const overwriteCache = 'overwriteCache' in req.query;
 
   // setup firestore if using or flushing cache
   if (!noCache) {
@@ -23,7 +23,7 @@ exports.readReport = async (req, res) => {
   }
 
   // retrieve from firestore if using cache
-  if (!noCache && !flushCache) {
+  if (!noCache && !overwriteCache) {
     const doc = await collection.doc(req.query.date).get();
     if (doc.exists && !req.query.noCache) {
       console.log(doc.data());
@@ -38,7 +38,7 @@ exports.readReport = async (req, res) => {
     .then(values => {
         console.log(values);
         res.status(200).send(values);
-        if (!noCache || flushCache) {
+        if (!noCache || overwriteCache) {
           collection.doc(req.query.date).set(values);
         }
     })

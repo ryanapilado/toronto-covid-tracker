@@ -32,8 +32,8 @@ test.each(caseData)("no cache: %s", async (date, torontoNewCases, ontarioNewCase
   );
 })
 
-test.each(caseData)("flush cache: %s", async (date, torontoNewCases, ontarioNewCases) => {
-  const req = getMockReq({ query: {date: date, flushCache: true} });
+test.each(caseData)("overwrite cache: %s", async (date, torontoNewCases, ontarioNewCases) => {
+  const req = getMockReq({ query: {date: date, overwriteCache: true} });
   const { res } = getMockRes();
   await readReport(req, res);
   expect(res.status).toHaveBeenCalledWith(200);
