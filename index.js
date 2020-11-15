@@ -15,9 +15,15 @@ exports.readReport = async (req, res) => {
   let collection;
   const noCache = 'noCache' in req.query;
   const flushCache = 'flushCache' in req.query;
-  if (!noCache && !flushCache) {
+
+  // setup firestore if using or flushing cache
+  if (!noCache) {
     const db = new Firestore();
     collection = db.collection(process.env.COLLECTION);
+  }
+
+  // retrieve from firestore if using cache
+  if (!noCache && !flushCache) {
     const doc = await collection.doc(req.query.date).get();
     if (doc.exists && !req.query.noCache) {
       console.log(doc.data());
@@ -26,6 +32,7 @@ exports.readReport = async (req, res) => {
     }
   }
 
+  // scrape and return the results from the report
   return downloader.download(req.query.date)
     .then(file => scraper.scrapeValues(file))
     .then(values => {
