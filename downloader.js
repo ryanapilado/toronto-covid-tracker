@@ -9,10 +9,11 @@ function download(date) {
     const outputTarget = '/tmp/report.pdf';
     const filename = `${date}.pdf`;
 
-    // try to retrieve it from storage first 
+    // first try to retrieve file from storage
     getFileFromStorage(filename, outputTarget)
       .then(file => resolve(file))
-    // await Promise.reject()
+
+      // if file not found in storage, download
       .catch(err => {
 
         const url = `https://files.ontario.ca/moh-covid-19-report-en-${date}.pdf`;
