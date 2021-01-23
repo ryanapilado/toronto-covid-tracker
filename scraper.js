@@ -45,6 +45,7 @@ async function getNewCases(file, healthUnit) {
     );
     let newCases = parseWindow.split(" ")
                     .map(element => element.replace(',', ''))
+                    .map(element => element.replace('*', ''))
                     .filter(element => isnumeric(element))
                     [1];
 
